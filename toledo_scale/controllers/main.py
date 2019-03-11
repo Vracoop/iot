@@ -159,7 +159,7 @@ class ToledoScale(hw_scale.Scale):
         self.price = 0
         self.priceKg = 0
         self.uom = 0
-        self.error = 'no error'
+        self.error = u'00'
 
     def _parse_scale_answer(self, protocol, answer, regexp, parse):
         """
@@ -379,43 +379,31 @@ class ToledoScale(hw_scale.Scale):
     def log_status(self, status):
         if status == u'00':
             _logger.debug('[SCALE][Record 09] status information: no error')
-            self.error = 'no error'
         elif status == u'01':
             _logger.debug('[SCALE][Record 09] status information: general error')
-            self.error = 'general error'
         elif status == u'02':
             _logger.debug('[SCALE][Record 09] status information: parity status or buffer overflow')
-            self.error = 'parity status or buffer overflow'
         elif status == u'10':
             _logger.debug('[SCALE][Record 09] status information: invalid record no.')
-            self.error = 'invalid record no.'
         elif status == u'11':
             _logger.debug('[SCALE][Record 09] status information: invalid unit price')
-            self.error = 'invalid unit price'
         elif status == u'12':
             _logger.debug('[SCALE][Record 09] status information: invalid tare value')
-            self.error = 'invalid tare value'
         elif status == u'13':
             _logger.debug('[SCALE][Record 09] status information: invalid text')
-            self.error = 'invalid text'
         elif status == u'20':
             _logger.debug('[SCALE][Record 09] status information: scale is still in motion')
-            self.error = 'scale is still in motion'
         elif status == u'21':
             _logger.debug('[SCALE][Record 09] status information: scale was not in motion since last operation')
-            self.error = 'scale was not in motion since last operation'
         elif status == u'22':
             _logger.debug('[SCALE][Record 09] status information: measurement is not yet finished')
-            self.error = 'measurement is not yet finished'
         elif status == u'30':
             _logger.debug('[SCALE][Record 09] status information: weight is less than minimum weight')
-            self.error = 'weight is less than minimum weight'
         elif status == u'31':
             _logger.debug('[SCALE][Record 09] status information: scale is less than 0')
-            self.error = 'scale is less than 0'
         elif status == u'32':
             _logger.debug('[SCALE][Record 09] status information: scale is overloaded')
-            self.error = 'scale is overloaded'
+        self.error = status
 
     def set_device(self):
         connected = False
@@ -689,7 +677,7 @@ class ToledoScale(hw_scale.Scale):
     def get_error(self):
         self.lockedstart()
         error = self.error
-        self.error = 'no error'
+        self.error = u'00'
         return error
 
     def reset_values(self):
@@ -697,7 +685,7 @@ class ToledoScale(hw_scale.Scale):
         self.weight = 0
         self.priceKg = 0
         self.price = 0
-        self.error = 'no error'
+        self.error = u'00'
 
     def get_status(self):
         self.lockedstart()
@@ -723,42 +711,18 @@ if serial:
 class ScaleDriver(hw_proxy.Proxy):
     @http.route('/hw_proxy/scale_read/', type='json', auth='none', cors='*')
     def scale_read(self):
-        if scale_thread:
-            scale_thread.request_weighing_operation('000120')
+        scale_thread.request_weighing_operation('000000')
 
-            try:
-                res = {'weight': scale_thread.get_weight(),
-                       'price': scale_thread.get_price_all(),
-                       'uom': scale_thread.get_uom(),
-                       'priceKg': scale_thread.get_price_kg(),
-                       'error': scale_thread.get_error()}
-            except AttributeError:
-                return False
-            return res
+        if scale_thread:
+            return {'weight': scale_thread.get_weight(),
+                    'unit': 'kg',
+                    'info': scale_thread.get_error()}
         return None
-
-    @http.route('/hw_proxy/scale_zero/', type='json', auth='none', cors='*')
-    def scale_zero(self):
-        if scale_thread:
-            scale_thread.set_zero()
-        return True
-
-    @http.route('/hw_proxy/scale_tare/', type='json', auth='none', cors='*')
-    def scale_tare(self):
-        if scale_thread:
-            scale_thread.set_tare()
-        return True
-
-    @http.route('/hw_proxy/scale_clear_tare/', type='json', auth='none', cors='*')
-    def scale_clear_tare(self):
-        if scale_thread:
-            scale_thread.clear_tare()
-        return True
 
     @http.route('/hw_proxy/scale_price', type='json', auth='none', cors='*')
     def scale_read_data_price(self, price):
         if scale_thread:
-            scale_thread.request_price(price)
+            scale_thread.request_weighing_operation(price)
             # retour des résultats
             try:
                 res = {'weight': scale_thread.get_weight(),
@@ -774,7 +738,7 @@ class ScaleDriver(hw_proxy.Proxy):
     @http.route('/hw_proxy/scale_price_tare', type='json', auth='none', cors='*')
     def scale_read_data_price_tare(self, price, tare):
         if scale_thread:
-            scale_thread.request_price(price, tare)
+            scale_thread.request_weighing_operation(price, tare)
             # retour des résultats
             try:
                 res = {'weight': scale_thread.get_weight(),
@@ -790,7 +754,7 @@ class ScaleDriver(hw_proxy.Proxy):
     @http.route('/hw_proxy/scale_price_text', type='json', auth='none', cors='*')
     def scale_read_data_price_text(self, price, text):
         if scale_thread:
-            scale_thread.request_price(price, text)
+            scale_thread.request_weighing_operation(price, text)
             # retour des résultats
             try:
                 res = {'weight': scale_thread.get_weight(),
@@ -806,7 +770,7 @@ class ScaleDriver(hw_proxy.Proxy):
     @http.route('/hw_proxy/scale_price_tare_text', type='json', auth='none', cors='*')
     def scale_read_data_price_tare_text(self, price, tare, text):
         if scale_thread:
-            scale_thread.request_price(price, tare, text)
+            scale_thread.request_weighing_operation(price, tare, text)
             # retour des résultats
             try:
                 res = {'weight': scale_thread.get_weight(),
