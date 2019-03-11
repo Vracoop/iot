@@ -34,7 +34,7 @@ except ImportError:
 def _parse_record_no(data):
     """ Parse a record, returning number value"""
     data = data.decode('utf-8')
-    stx = data.index(u'\x02')
+    stx = data.index(u'\x02')  # STX (Start of Text) ASCII control character
     record_no = data[stx + 1: stx + 3]
     _logger.debug('[PARSE][RECORD] record no. : {}'.format(record_no))
     return record_no
@@ -122,11 +122,11 @@ Dialog06Protocol = ScaleProtocol(
     tareCommand=None,
     clearCommand=None,  # No clear command -> Tare again
 
-    eot_stx=u'\x04\x02',
-    etx=u'\x03',
-    esc=u'\x1b',
-    eot_enq=u'\x04\x05',
-    eot=u'\x04',
+    eot_stx=u'\x04\x02',  # EOT and Start of Text ASCII control characters
+    etx=u'\x03',  # End of Text ASCII control character
+    esc=u'\x1b',  # Escape ASCII control character
+    eot_enq=u'\x04\x05',  # EOT and Enquiry ASCII control characters
+    eot=u'\x04',  # End of Transmission ASCII control character
 
     ack_regexp=b'',
     status_regexp=b'^\\x02([0-9]*)',
