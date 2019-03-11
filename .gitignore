@@ -1,3 +1,8 @@
+# Mettler-Toledo Polynomial P known by the scale manufacturer and the POS
+#  To use with a Toledo scale using the Checkout-Dialog 06 Protocol
+#  and an appropriate method (for instance CRC16) creating checksums
+secret_toledo_polynomial.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

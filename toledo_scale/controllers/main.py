@@ -13,14 +13,14 @@ from collections import namedtuple
 from os import listdir
 
 from odoo import http
-
 from odoo.addons.hw_proxy.controllers import main as hw_proxy
 from odoo.addons.hw_scale.controllers import main as hw_scale
+
+from ..secret_toledo_polynomial import p as toledo_polynomial_p
 
 _logger = logging.getLogger(__name__)
 
 DRIVER_NAME = 'scale'
-toledo_polynomial_p = int('186A3', 16)  # TODO(Vincent) put in a environment conf file
 ACK = b'\x06'
 NAK = b'\x15'
 
