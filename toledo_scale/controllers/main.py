@@ -529,8 +529,7 @@ class ToledoScale(hw_scale.Scale):
                 error = self.request_status_information(device)
             elif answer_checksum == ACK:
                 _logger.debug(
-                    '[SEND CHECKSUM] Frame received is ACK frame. '
-                    'POS continues as with a normal weighing operation by transmitting EOT ENQ')
+                    '[SEND CHECKSUM] Frame received is ACK frame. POS transmits EOT ENQ')
                 self.send_eot_enq(device)
                 answer_status = self._get_raw_response(device)
                 if answer_status == NAK:
