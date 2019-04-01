@@ -3,4 +3,4 @@
 
 from . import main
 from . import dialog06_protocol
-from . import scale_driver
+from . import scale_proxy
