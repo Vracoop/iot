@@ -4,15 +4,12 @@
 # 	    Vincent Van Rossem <vvrossem@gmail.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 import logging
-import os
 import re
 import random
 import time
 
-from os import listdir
-
-from odoo.addons.hw_proxy.controllers import main as hw_proxy
 from odoo.addons.hw_scale.controllers import main as hw_scale
+from odoo.tools.config import config
 
 from ..secret_toledo_polynomial import p as toledo_polynomial_p
 from .dialog06_protocol import Dialog06Protocol
@@ -26,16 +23,17 @@ NAK = b'\x15'
 try:
     import serial
 except ImportError:
-    _logger.error('Odoo module toledo_scale depends on the pyserial python module')
+    _logger.error('Odoo module hw_toledo_scale depends on the pyserial python module')
     serial = None
 
 protocol = Dialog06Protocol
 
 
-class ToledoScale(hw_scale.Scale):
+class ToledoScaleDriver(hw_scale.Scale):
     def __init__(self):
         super().__init__()
-
+        self.path_to_scale = config.get(
+            'toledo_scale_path_to_scale', '/dev/ttyUSB0')
         self.price = 0
         self.priceKg = 0
         self.uom = 0
@@ -163,7 +161,10 @@ class ToledoScale(hw_scale.Scale):
         device.write(record_04)
 
     def send_record_05(self, unit_price, tare_value, text, device):
-        """Transmitting of unit price, tare value and text (TLU) (unit price: 5/6 digits, tare value: 4 digits, text: 13 chars"""
+        """
+        Transmitting of unit price, tare value and text (TLU)
+        (unit price: 5/6 digits, tare value: 4 digits, text: 13 chars
+        """
         record_05 = "{}{}{}{}{}{}{}{}{}".format(
             self.protocol.eot_stx,
             self.protocol.record_05,
@@ -193,7 +194,6 @@ class ToledoScale(hw_scale.Scale):
         Transmitting of checksums.
         Checksums must be transmitted as uppercase hexadecimal ASCII-chars
         """
-
         record_10 = "{}{}{}{}{}{}".format(
             self.protocol.eot_stx,
             self.protocol.record_10,
@@ -255,7 +255,6 @@ class ToledoScale(hw_scale.Scale):
             _logger.debug('------------[SCALE][Record 09] status code : {}'.format(status_code))
             return status_code
 
-    # TODO(Vincent) define self.error with status_code instead of sentence?
     def log_status(self, status):
         if status == u'00':
             _logger.debug('[SCALE][Record 09] status information: no error')
@@ -286,59 +285,39 @@ class ToledoScale(hw_scale.Scale):
         self.error = status
 
     def set_device(self):
-        connected = False
         if not self.device:
-            with hw_proxy.rs232_lock:
-                try:
-                    if not os.path.exists(self.input_dir):
-                        self.set_status('disconnected', 'No RS-232 device found')
-                        self.device = None
-                    else:
-                        devices = [device for device in listdir(self.input_dir)]
+            try:
+                _logger.debug('[DEVICE] Probing %s with protocol %s', self.path_to_scale, protocol)
+                self.device = serial.Serial(self.path_to_scale,
+                                            baudrate=protocol.baudrate,
+                                            bytesize=protocol.bytesize,
+                                            stopbits=protocol.stopbits,
+                                            parity=protocol.parity,
+                                            timeout=1,  # longer timeouts for probing
+                                            writeTimeout=1)  # longer timeouts for probing
 
-                        for device in devices:
-                            path = self.input_dir + device
-                            driver = hw_proxy.rs232_devices.get(device)
-                            if driver and driver != DRIVER_NAME:
-                                # belongs to another driver
-                                _logger.debug('[DEVICE] Ignoring %s, belongs to %s', device, driver)
-                                continue
-                            _logger.debug('[DEVICE] Probing %s with protocol %s', path, protocol)
-                            self.device = serial.Serial(path,
-                                                        baudrate=protocol.baudrate,
-                                                        bytesize=protocol.bytesize,
-                                                        stopbits=protocol.stopbits,
-                                                        parity=protocol.parity,
-                                                        timeout=1,  # longer timeouts for probing
-                                                        writeTimeout=1)  # longer timeouts for probing
-
-                            self.path_to_scale = path
-                            self.protocol = protocol
-                            connected, error = self.request_weighing_operation('000000')
-                            _logger.debug('[DEVICE] connected: {}'.format(connected))
-                            if connected:
-                                _logger.info('Probing %s: answer looks ok for protocol %s', path, protocol.name)
-                                self.set_status(
-                                    'connected',
-                                    'Connected to %s with %s protocol' % (device, protocol.name)
-                                )
-                                self.device.timeout = protocol.timeout
-                                self.device.writeTimeout = protocol.writeTimeout
-                                hw_proxy.rs232_devices[path] = DRIVER_NAME
-                                break
-                            else:
-                                _logger.info('Probing %s: no valid answer to protocol %s', path, protocol.name)
-                        if not connected:
-                            self.set_status('disconnected', 'No supported RS-232 scale found')
-                            self.path_to_scale = ''
-                            self.protocol = None
-                            self.device = None
-                except Exception as e:
-                    _logger.exception('Failed probing for scales')
-                    self.set_status('error', 'Failed probing for scales: %s' % e)
-                    self.path_to_scale = ''
+                self.protocol = protocol
+                connected, error = self.request_weighing_operation('000000')
+                _logger.debug('[DEVICE] connected: {}'.format(connected))
+                if connected:
+                    _logger.info('Probing %s: answer looks ok for protocol %s', self.path_to_scale, protocol.name)
+                    self.set_status(
+                        'connected',
+                        'Connected to %s with %s protocol' % (self.device, protocol.name)
+                    )
+                    self.device.timeout = protocol.timeout
+                    self.device.writeTimeout = protocol.writeTimeout
+                else:
+                    _logger.info('Probing %s: no valid answer to protocol %s', self.path_to_scale, protocol.name)
+                    self.set_status('disconnected', 'No supported USB scale found')
                     self.protocol = None
                     self.device = None
+
+            except Exception as e:
+                # _logger.exception('Failed probing for scales')
+                self.set_status('error', 'Failed probing for scales: %s' % e)
+                self.protocol = None
+                self.device = None
 
     def calculate_checksums(self, scale_answer, device):
         """
@@ -444,9 +423,6 @@ class ToledoScale(hw_scale.Scale):
         return connected, error
 
     def request_weighing_operation(self, price, tare=None, text=None):
-        """
-        TODO
-        """
         _logger.debug('[WEIGHING] POS transmits one of the Records 01, 03, 04 or 05')
 
         with self.scalelock:
@@ -579,5 +555,3 @@ class ToledoScale(hw_scale.Scale):
                 if not self.device:
                     # retry later to support "plug and play"
                     time.sleep(10)
-
-
