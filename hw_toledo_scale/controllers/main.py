@@ -19,6 +19,7 @@ _logger = logging.getLogger(__name__)
 DRIVER_NAME = 'scale'
 ACK = b'\x06'
 NAK = b'\x15'
+PRECISION = 3
 
 try:
     import serial
@@ -482,11 +483,13 @@ class ToledoScaleDriver(hw_scale.Scale):
                     # uom, weight, priceKg, price
                     self.uom, self.weight, self.priceKg, self.price = weight_data
                     _logger.debug('[WEIGHING][DATA] uom, weight, priceKg, price updated.')
+                    _logger.debug('[WEIGHING][DATA] weight = {}'.format(self.weight))
+                    _logger.debug('[WEIGHING][DATA] weight = {}'.format(self.get_weight()))
                 else:
                     _logger.debug('[WEIGHING][RESULT] Weight data is not received after an ACK answer.')
                     _logger.debug(
                         '[WEIGHING][RESULT] Frame received is {} with status {}'
-                            .format(weighing_result, str(record_no)))
+                        .format(weighing_result, str(record_no)))
                     error = self.request_status_information(self.device)
         else:
             # at certain time, the scale will request from the POS the calculation and transmitting of checksums
@@ -515,11 +518,11 @@ class ToledoScaleDriver(hw_scale.Scale):
 
     def get_weight(self):
         self.lockedstart()
-        return self.weight * 10 ** -self.uom
+        return round(self.weight * (10 ** -PRECISION), PRECISION)
 
     def get_price_all(self):
         self.lockedstart()
-        return self.price * 10 ** -self.uom
+        return round(self.price * (10 ** -PRECISION), PRECISION)
 
     def get_price_kg(self):
         self.lockedstart()
