@@ -92,7 +92,7 @@ Dialog06Protocol = ScaleProtocol(
     bytesize=serial.SEVENBITS,
     stopbits=serial.STOPBITS_ONE,
     parity=serial.PARITY_ODD,
-    timeout=0.5,
+    timeout=0.03,
 
     writeTimeout=0.5,
     weightRegexp=None,
