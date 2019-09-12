@@ -436,9 +436,9 @@ class ToledoScaleDriver(hw_scale.Scale):
                     if tare and text:
                         self.send_record_05(price, tare, text, self.device)
                     elif text:
-                        self.send_record_03(price, text, self.device)
+                        self.send_record_04(price, text, self.device)
                     elif tare:
-                        self.send_record_04(price, tare, self.device)
+                        self.send_record_03(price, tare, self.device)
                     else:
                         self.send_record_01(price, self.device)
                     scale_answer = self._get_raw_response(self.device)
