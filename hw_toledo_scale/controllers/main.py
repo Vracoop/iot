@@ -487,9 +487,8 @@ class ToledoScaleDriver(hw_scale.Scale):
                     _logger.debug('[WEIGHING][DATA] weight = {}'.format(self.get_weight()))
                 else:
                     _logger.debug('[WEIGHING][RESULT] Weight data is not received after an ACK answer.')
-                    _logger.debug(
-                        '[WEIGHING][RESULT] Frame received is {} with status {}'
-                        .format(weighing_result, str(record_no)))
+                    _logger.debug('[WEIGHING][RESULT] Frame received is {} with status {}'
+                                  .format(weighing_result, str(record_no)))
                     error = self.request_status_information(self.device)
         else:
             # at certain time, the scale will request from the POS the calculation and transmitting of checksums
@@ -526,10 +525,12 @@ class ToledoScaleDriver(hw_scale.Scale):
 
     def get_price_kg(self):
         self.lockedstart()
-        return self.priceKg
+        return round(self.priceKg * (10 ** -PRECISION), PRECISION)
 
     def get_uom(self):
         self.lockedstart()
+        if self.uom == 3:
+            return 'kg'
         return self.uom
 
     def get_error(self):

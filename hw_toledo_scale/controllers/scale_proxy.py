@@ -32,7 +32,7 @@ class ToledoScaleProxy(hw_proxy.Proxy):
     def scale_read(self):
 
         if scale_thread:
-            scale_thread.request_weighing_operation('000000')
+            scale_thread.request_weighing_operation('001000')
             try:
                 res = {'weight': scale_thread.get_weight(),
                     'unit': 'kg',
