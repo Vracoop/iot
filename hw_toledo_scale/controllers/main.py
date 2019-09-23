@@ -298,7 +298,7 @@ class ToledoScaleDriver(hw_scale.Scale):
                                             writeTimeout=1)  # longer timeouts for probing
 
                 self.protocol = protocol
-                connected, error = self.request_weighing_operation('000000')
+                connected, error = self.request_weighing_operation('001000')
                 _logger.debug('[DEVICE] connected: {}'.format(connected))
                 if connected:
                     _logger.info('Probing %s: answer looks ok for protocol %s', self.path_to_scale, protocol.name)
