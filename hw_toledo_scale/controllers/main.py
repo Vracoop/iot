@@ -424,15 +424,14 @@ class ToledoScaleDriver(hw_scale.Scale):
         return connected, error
 
     def request_weighing_operation(self, price, tare=None, text=None):
-        _logger.debug('[WEIGHING] POS transmits one of the Records 01, 03, 04 or 05')
-
-        with self.scalelock:
-            _logger.debug('[WEIGHING] With scalelock')
-            if self.device:
-                _logger.debug('[WEIGHING] Has device')
-                # order of events
-                # POS transmits one of the Records 01, 03, 04 or 05
-                try:
+        try:
+            _logger.debug('[WEIGHING] POS transmits one of the Records 01, 03, 04 or 05')
+            with self.scalelock:
+                _logger.debug('[WEIGHING] With scalelock')
+                if self.device:
+                    _logger.debug('[WEIGHING] Has device')
+                    # order of events
+                    # POS transmits one of the Records 01, 03, 04 or 05
                     if tare and text:
                         self.send_record_05(price, tare, text, self.device)
                     elif text:
@@ -443,9 +442,13 @@ class ToledoScaleDriver(hw_scale.Scale):
                         self.send_record_01(price, self.device)
                     scale_answer = self._get_raw_response(self.device)
                     return self._handle_weighing_answer(scale_answer)
-                except Exception as e:
-                    _logger.debug('[WEIGHING] Could not weigh on scale {} with protocol {}: {}'.format(
-                        self.path_to_scale, self.protocol.name, e))
+        except Exception as e:
+            _logger.debug('[WEIGHING] Could not weigh on scale {} with protocol {}: {}'.format(
+                self.path_to_scale, self.protocol.name, e))
+            self.set_status(
+                'error',
+                'Could not weigh on scale {} with protocol {}: {}'.format(
+                    self.path_to_scale, self.protocol.name, e))
 
     def _handle_weighing_answer(self, answer):
         connected, error = False, None
