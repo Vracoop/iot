@@ -449,6 +449,8 @@ class ToledoScaleDriver(hw_scale.Scale):
                 'error',
                 'Could not weigh on scale {} with protocol {}: {}'.format(
                     self.path_to_scale, self.protocol.name, e))
+            self.device = None
+            self.protocol = None
 
     def _handle_weighing_answer(self, answer):
         connected, error = False, None
