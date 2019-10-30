@@ -8,7 +8,7 @@ import logging
 from odoo import http
 from odoo.addons.hw_proxy.controllers import main as hw_proxy
 
-from .main import ToledoScaleDriver
+from .main import Dialog06ScaleDriver
 
 
 _logger = logging.getLogger(__name__)
@@ -18,16 +18,16 @@ DRIVER_NAME = 'scale'
 try:
     import serial
 except ImportError:
-    _logger.error('Odoo module hw_toledo_scale depends on the pyserial python module')
+    _logger.error('Odoo module hw_dialog06_scale depends on the pyserial python module')
     serial = None
 
 scale_thread = None
 if serial:
-    scale_thread = ToledoScaleDriver()
+    scale_thread = Dialog06ScaleDriver()
     hw_proxy.drivers[DRIVER_NAME] = scale_thread
 
 
-class ToledoScaleProxy(hw_proxy.Proxy):
+class Dialog06ScaleProxy(hw_proxy.Proxy):
     @http.route('/hw_proxy/scale_read/', type='json', auth='none', cors='*')
     def scale_read(self):
 

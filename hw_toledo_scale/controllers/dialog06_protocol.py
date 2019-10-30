@@ -12,7 +12,7 @@ _logger = logging.getLogger(__name__)
 try:
     import serial
 except ImportError:
-    _logger.error('Odoo module toledo_scale depends on the pyserial python module')
+    _logger.error('Odoo module hw_dialog06_scale depends on the pyserial python module')
     serial = None
 
 
@@ -87,7 +87,7 @@ ScaleProtocol = namedtuple(
     "eot_stx etx esc eot_enq eot")
 
 Dialog06Protocol = ScaleProtocol(
-    name='Toledo Dialog06',
+    name='Dialog06',
     baudrate=9600,
     bytesize=serial.SEVENBITS,
     stopbits=serial.STOPBITS_ONE,

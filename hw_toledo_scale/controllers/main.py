@@ -11,7 +11,7 @@ import time
 from odoo.addons.hw_scale.controllers import main as hw_scale
 from odoo.tools.config import config
 
-from ..secret_toledo_polynomial import p as toledo_polynomial_p
+from ..secret_polynomial import p as polynomial_p
 from .dialog06_protocol import Dialog06Protocol
 
 _logger = logging.getLogger(__name__)
@@ -24,17 +24,17 @@ PRECISION = 3
 try:
     import serial
 except ImportError:
-    _logger.error('Odoo module hw_toledo_scale depends on the pyserial python module')
+    _logger.error('Odoo module hw_dialog06_scale depends on the pyserial python module')
     serial = None
 
 protocol = Dialog06Protocol
 
 
-class ToledoScaleDriver(hw_scale.Scale):
+class Dialog06ScaleDriver(hw_scale.Scale):
     def __init__(self):
         super().__init__()
         self.path_to_scale = config.get(
-            'toledo_scale_path_to_scale', '/dev/ttyUSB0')
+            'dialog06_scale_path_to_scale', '/dev/ttyUSB0')
         self.price = 0
         self.priceKg = 0
         self.uom = 0
@@ -353,7 +353,7 @@ class ToledoScaleDriver(hw_scale.Scale):
                 cs_hex_ascii_encoded = "{:04X}".format(int(cs_bin_encoded, 2))
 
                 # generate kw
-                kw = self._get_kw_value(toledo_polynomial_p, int(cs, 16))
+                kw = self._get_kw_value(polynomial_p, int(cs, 16))
                 kw_size = len(kw) * 4
                 kw_bin = bin(int(kw, 16))[2:].zfill(kw_size)
 
