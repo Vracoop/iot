@@ -442,6 +442,9 @@ class Dialog06ScaleDriver(hw_scale.Scale):
                         self.send_record_01(price, self.device)
                     scale_answer = self._get_raw_response(self.device)
                     return self._handle_weighing_answer(scale_answer)
+        except serial.SerialTimeoutException:
+            _logger.error('[WEIGHING] SerialTimeoutException')
+            pass
         except Exception as e:
             _logger.debug('[WEIGHING] Could not weigh on scale {} with protocol {}: {}'.format(
                 self.path_to_scale, self.protocol.name, e))
