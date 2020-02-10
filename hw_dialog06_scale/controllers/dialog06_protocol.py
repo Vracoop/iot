@@ -94,7 +94,7 @@ Dialog06Protocol = ScaleProtocol(
     parity=serial.PARITY_ODD,
     timeout=0.03,
 
-    writeTimeout=0.5,
+    writeTimeout=1,
     weightRegexp=None,
 
     commandTerminator=u"",
