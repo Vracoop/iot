@@ -564,6 +564,4 @@ class Dialog06ScaleDriver(hw_scale.Scale):
         while True:
             if not self.device:
                 self.set_device()
-                if not self.device:
-                    # retry later to support "plug and play"
-                    time.sleep(10)
+            time.sleep(1)
