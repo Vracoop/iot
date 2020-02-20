@@ -591,10 +591,10 @@ class Dialog06ScaleDriver(hw_scale.Scale):
                     # POS transmits one of the Records 01, 03, 04 or 05
                     if tare and text:
                         self.send_record_05(price, tare, text, self.device)
-                    elif text:
-                        self.send_record_04(price, text, self.device)
                     elif tare:
                         self.send_record_03(price, tare, self.device)
+                    elif text:
+                        self.send_record_04(price, text, self.device)
                     else:
                         self.send_record_01(price, self.device)
                     scale_answer = self._get_raw_response(self.device)

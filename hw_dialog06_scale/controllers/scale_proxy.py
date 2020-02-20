@@ -69,7 +69,7 @@ class Dialog06ScaleProxy(hw_proxy.Proxy):
     )
     def scale_read_data_price_tare(self, price, tare):
         if scale_thread:
-            scale_thread.request_weighing_operation(price, tare)
+            scale_thread.request_weighing_operation(price, tare=tare)
             # retour des résultats
             try:
                 res = {
@@ -89,7 +89,7 @@ class Dialog06ScaleProxy(hw_proxy.Proxy):
     )
     def scale_read_data_price_text(self, price, text):
         if scale_thread:
-            scale_thread.request_weighing_operation(price, text)
+            scale_thread.request_weighing_operation(price, text=text)
             # retour des résultats
             try:
                 res = {
@@ -109,7 +109,7 @@ class Dialog06ScaleProxy(hw_proxy.Proxy):
     )
     def scale_read_data_price_tare_text(self, price, tare, text):
         if scale_thread:
-            scale_thread.request_weighing_operation(price, tare, text)
+            scale_thread.request_weighing_operation(price, tare=tare, text=text)
             # retour des résultats
             try:
                 res = {
