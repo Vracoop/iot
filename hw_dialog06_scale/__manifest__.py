@@ -4,15 +4,14 @@
 #       Vincent Van Rossem <vvrossem@gmail.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 {
-    'name': 'Checkout-Dialog 06 Protocol Weighing Scale Hardware Driver',
-    'version': '12.0.0.1.0',
-    "author": "Coop IT Easy SCRLfs,"
-              "Odoo Community Association (OCA)",
-    'license': "AGPL-3",
-    'website': "https://github.com/OCA/iot/",
-    'category': 'Hardware Drivers',
-    'summary': 'Hardware Driver for scales using the Checkout-Dialog 06 Protocol',
-    'description': """
+    "name": "Checkout-Dialog 06 Protocol Weighing Scale Hardware Driver",
+    "version": "12.0.0.1.0",
+    "author": "Coop IT Easy SCRLfs," "Odoo Community Association (OCA)",
+    "license": "AGPL-3",
+    "website": "https://github.com/OCA/iot/",
+    "category": "Hardware Drivers",
+    "summary": "Hardware Driver for scales using the Checkout-Dialog 06 Protocol",
+    "description": """
 Dialog 06 Weighing Scale Hardware Driver
 =============================================
 
@@ -34,7 +33,7 @@ This module has been tested with a Mettler-Toledo Ariva-S configured with the Ch
 * Checkout-Dialog06 protocol: https://www.manualslib.com/manual/861274/Mettler-Toledo-Viva.html?page=42#manual
 
 """,
-    'depends': ['hw_scale'],
-    'external_dependencies': {'python': ['serial']},
-    'installable': False,
+    "depends": ["hw_scale"],
+    "external_dependencies": {"python": ["serial"]},
+    "installable": False,
 }
