@@ -636,6 +636,8 @@ class Dialog06ScaleDriver(hw_scale.Scale):
             if weighing_result == NAK:
                 _logger.debug("[WEIGHING][RESULT] <NAK> : An error occured.")
                 error = self.request_status_information(self.device)
+                if error == "30":
+                    self.weight = 0
             else:
                 record_no, error = self._parse_scale_answer(
                     self.protocol,
